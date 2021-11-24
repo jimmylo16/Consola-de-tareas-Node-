@@ -1,7 +1,6 @@
 require('colors');
 const { guardarData, leerData } = require('./helpers/guardarArchivo');
-const { inquirerMenu, pausa, leerInput } = require('./helpers/inquirer');
-const Tarea = require('./models/tarea');
+const { inquirerMenu, pausa, leerInput, listadoBorrar, confirmacion, mostrarListadoChecklist } = require('./helpers/inquirer');
 const Tareas = require('./models/tareas');
 
 console.clear();
@@ -29,13 +28,24 @@ const main = async () => {
 				tareas.listadoCompleto();
 				break;
 			case '3':
-				tareas.listadoTareasCompletadas();
+				tareas.listadoPendientesCompletadas(true);
 				break;
 			case '4':
-				tareas.listadoTareasIncompletadas();
+				tareas.listadoPendientesCompletadas(false);
 				break;
 			case '5':
-				tareas.listadoTareasIncompletadas();
+                const ids=await mostrarListadoChecklist(tareas.listadoArray);
+                tareas.cambioCompletadas(ids);
+				break;
+			case '6':
+				const id = await listadoBorrar(tareas.listadoArray);
+				if (id !== 0) {
+					const ok = await confirmacion('Esta seguro?');
+					if (ok) {
+						tareas.borrarTarea(id);
+						console.log('tarea Borrada');
+					}
+				}
 				break;
 		}
 		guardarData(tareas.listadoArray);
